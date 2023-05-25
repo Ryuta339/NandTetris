@@ -24,6 +24,10 @@ pub fn xor(a: Bit, b: Bit) -> Bit {
     and(nand(a, b), or(a, b))
 }
 
+pub fn mux(a: Bit, b: Bit, sel: Bit) -> Bit {
+    or(and(not(sel), a), and(sel, b))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -78,5 +82,20 @@ mod tests {
         assert_eq!(xor(false, true), true);
         assert_eq!(xor(true, false), true);
         assert_eq!(xor(true, true), false);
+    }
+
+    #[test]
+    fn test_mux() {
+        for a in BOOLS.iter() {
+            for b in BOOLS.iter() {
+                for sel in BOOLS.iter() {
+                    if *sel {
+                        assert_eq!(mux(*a, *b, *sel), *b);
+                    } else {
+                        assert_eq!(mux(*a, *b, *sel), *a);
+                    }
+                }
+            }
+        }
     }
 }
