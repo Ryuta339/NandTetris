@@ -1,33 +1,42 @@
+// Bool代数を表す型
 type Bit = bool;
 
+// NANDゲート
 pub fn nand(a: Bit, b: Bit) -> Bit {
     ! (a && b)
 }
 
+// NOTゲート
 pub fn not(a: Bit) -> Bit {
     nand(a, a)
 }
 
+// ANDゲート
 pub fn and(a: Bit, b: Bit) -> Bit {
     not(nand(a, b))
 }
 
+// ORゲート
 pub fn or(a: Bit, b: Bit) -> Bit {
     nand(not(a), not(b))
 }
 
+// NORゲート
 pub fn nor(a: Bit, b: Bit) -> Bit {
     not(or(a, b))
 }
 
+// XORゲート
 pub fn xor(a: Bit, b: Bit) -> Bit {
     and(nand(a, b), or(a, b))
 }
 
+// マルチプレクサ
 pub fn mux(a: Bit, b: Bit, sel: Bit) -> Bit {
     or(and(not(sel), a), and(sel, b))
 }
 
+// デマルチプレクサ
 pub fn dmux(b_in: Bit, sel: Bit) -> [Bit; 2] {
     [
         and(not(sel), b_in),
@@ -35,6 +44,7 @@ pub fn dmux(b_in: Bit, sel: Bit) -> [Bit; 2] {
     ]
 }
 
+// 16ビットNOT
 pub fn not16(m_in: [Bit; 16]) -> [Bit; 16] {
     [
         not(m_in[0]),
@@ -56,6 +66,7 @@ pub fn not16(m_in: [Bit; 16]) -> [Bit; 16] {
     ]
 }
 
+// 16ビットAND
 pub fn and16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
     [
         and(a[0], b[0]),
@@ -77,6 +88,7 @@ pub fn and16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
     ]
 }
 
+// 16ビットOR
 pub fn or16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
     [
         or(a[0], b[0]),
