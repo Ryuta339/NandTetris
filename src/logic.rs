@@ -28,6 +28,13 @@ pub fn mux(a: Bit, b: Bit, sel: Bit) -> Bit {
     or(and(not(sel), a), and(sel, b))
 }
 
+pub fn dmux(b_in: Bit, sel: Bit) -> [Bit; 2] {
+    [
+        and(not(sel), b_in),
+        and(sel, b_in)
+    ]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -94,6 +101,22 @@ mod tests {
                     } else {
                         assert_eq!(mux(*a, *b, *sel), *a);
                     }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn test_dmux() {
+        for b_in in BOOLS.iter() {
+            for sel in BOOLS.iter() {
+                let out = dmux(*b_in, *sel);
+                if *sel {
+                    assert_eq!(out[0], false);
+                    assert_eq!(out[1], *b_in);
+                } else {
+                    assert_eq!(out[0], *b_in);
+                    assert_eq!(out[1], false);
                 }
             }
         }
