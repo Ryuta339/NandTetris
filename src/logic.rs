@@ -137,9 +137,24 @@ pub fn or8way(b_in: [Bit; 8]) -> Bit {
     or(or(or(b_in[0], b_in[1]), or(b_in[2], b_in[3])), or(or(b_in[4], b_in[5]), or(b_in[6], b_in[7])))
 }
 
-// 4入力マルチプレクサ
+// 4入力16ビットマルチプレクサ
 pub fn mux4way16(a: [Bit; 16], b: [Bit; 16], c: [Bit; 16], d: [Bit; 16], sel: [Bit; 2]) -> [Bit; 16] {
     mux16(mux16(a, b, sel[0]), mux16(c, d, sel[0]), sel[1])
+}
+
+// 8入力16ビットマルチプレクサ
+pub fn mux8way16(
+    a: [Bit; 16],
+    b: [Bit; 16],
+    c: [Bit; 16],
+    d: [Bit; 16],
+    e: [Bit; 16],
+    f: [Bit; 16],
+    g: [Bit; 16],
+    h: [Bit; 16],
+    sel: [Bit; 3],
+) -> [Bit; 16] {
+    mux16(mux4way16(a, b, c, d, [sel[0], sel[1]]), mux4way16(e, f, g, h, [sel[0], sel[1]]), sel[2])
 }
 
 #[cfg(test)]
@@ -347,5 +362,72 @@ mod tests {
         assert_eq!(mux4way16(a, b, c, d, [true, false]), b);
         assert_eq!(mux4way16(a, b, c, d, [false, true]), c);
         assert_eq!(mux4way16(a, b, c, d, [true, true]), d);
+    }
+
+    #[test]
+    fn test_mux8way16() {
+        let arrs: [[Bit; 16]; 8] = [
+            [
+                false, false, false, false,
+                false, false, false, false,
+                false, false, false, false,
+                false, false, false, false,
+            ],
+            [
+                true, false, false, false,
+                false, false, false, false,
+                false, false, false, false,
+                false, false, false, false,
+            ],
+            [
+                false, true, false, false,
+                false, false, false, false,
+                false, false, false, false,
+                false, false, false, false,
+            ],
+            [
+                false, false, true, false,
+                false, false, false, false,
+                false, false, false, false,
+                false, false, false, false,
+            ],
+            [
+                false, false, false, true,
+                false, false, false, false,
+                false, false, false, false,
+                false, false, false, false,
+            ],
+            [
+                false, false, false, false,
+                false, false, false, false,
+                true, false, false, false,
+                false, false, false, false,
+            ],
+            [
+                false, false, false, false,
+                false, false, false, false,
+                false, true, false, false,
+                false, false, false, false,
+            ],
+            [
+                false, false, false, false,
+                false, false, false, false,
+                false, false, true, false,
+                false, false, false, false,
+            ],
+        ];
+        let sels: [[Bit; 3]; 8] = [
+            [false, false, false],
+            [true, false, false],
+            [false, true, false],
+            [true, true, false],
+            [false, false, true],
+            [true, false, true],
+            [false, true, true],
+            [true, true, true],
+        ];
+        for i in 0..8 {
+            assert_eq!(mux8way16(arrs[0], arrs[1], arrs[2], arrs[3], arrs[4], arrs[5], arrs[6], arrs[7], sels[i]), arrs[i]);
+        }
     }
 }
