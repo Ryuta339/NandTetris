@@ -132,6 +132,16 @@ pub fn mux16(a: [Bit; 16], b: [Bit; 16], sel: Bit) -> [Bit; 16] {
     ]
 }
 
+// 8ビットor
+pub fn or8way(b_in: [Bit; 8]) -> Bit {
+    or(or(or(b_in[0], b_in[1]), or(b_in[2], b_in[3])), or(or(b_in[4], b_in[5]), or(b_in[6], b_in[7])))
+}
+
+// 4入力マルチプレクサ
+pub fn mux4way16(a: [Bit; 16], b: [Bit; 16], c: [Bit; 16], d: [Bit; 16], sel: [Bit; 2]) -> [Bit; 16] {
+    mux16(mux16(a, b, sel[0]), mux16(c, d, sel[0]), sel[1])
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -293,5 +303,49 @@ mod tests {
                 }
             }
         }
+    }
+
+    #[test]
+    fn test_or8way() {
+        let a: [Bit; 8] = [false; 8];
+        assert_eq!(or8way(a), false);
+        let mut b: [Bit; 8] = [false; 8];
+        for i in 0..8 {
+            b[i] = true;
+            assert_eq!(or8way(b), true);
+            b[i] = false;
+        }
+    }
+
+    #[test]
+    fn test_mux4way16() {
+        let a: [Bit; 16] = [
+            false, false, false, false,
+            false, false, false, false,
+            false, false, false, false,
+            false, false, false, false,
+        ];
+        let b: [Bit; 16] = [
+            false, false, false, false,
+            true, true, true, true,
+            false, false, false, false,
+            true, true, true, true,
+        ];
+        let c: [Bit; 16] = [
+            true, true, true, true,
+            false, false, false, false,
+            true, true, true, true,
+            false, false, false, false,
+        ];
+        let d: [Bit; 16] = [
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+            true, true, true, true,
+        ];
+        assert_eq!(mux4way16(a, b, c, d, [false, false]), a);
+        assert_eq!(mux4way16(a, b, c, d, [true, false]), b);
+        assert_eq!(mux4way16(a, b, c, d, [false, true]), c);
+        assert_eq!(mux4way16(a, b, c, d, [true, true]), d);
     }
 }
