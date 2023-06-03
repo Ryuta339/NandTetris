@@ -157,6 +157,16 @@ pub fn mux8way16(
     mux16(mux4way16(a, b, c, d, [sel[0], sel[1]]), mux4way16(e, f, g, h, [sel[0], sel[1]]), sel[2])
 }
 
+// 1ビット入力4出力デマルチプレクサ
+pub fn dmux4way(b_in: Bit, sel: [Bit; 2]) -> [Bit; 4] {
+    [
+        and(and(not(sel[0]), not(sel[1])), b_in),
+        and(and(sel[0], not(sel[1])), b_in),
+        and(and(not(sel[0]), sel[1]), b_in),
+        and(and(sel[0], sel[1]), b_in),
+    ]
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -428,6 +438,26 @@ mod tests {
         ];
         for i in 0..8 {
             assert_eq!(mux8way16(arrs[0], arrs[1], arrs[2], arrs[3], arrs[4], arrs[5], arrs[6], arrs[7], sels[i]), arrs[i]);
+        }
+    }
+
+    #[test]
+    fn test_dmux4way() {
+        let expecteds: [[Bit; 4]; 4] = [
+            [true, false, false, false],
+            [false, true, false, false],
+            [false, false, true, false],
+            [false, false, false, true],
+        ];
+        let sels: [[Bit; 2]; 4] = [
+            [false, false],
+            [true, false],
+            [false, true],
+            [true, true],
+        ];
+        for i in 0..4 {
+            assert_eq!(dmux4way(false, sels[i]), [false, false, false, false]);
+            assert_eq!(dmux4way(true, sels[i]), expecteds[i]);
         }
     }
 }
