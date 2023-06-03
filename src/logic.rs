@@ -1,5 +1,5 @@
 // Bool代数を表す型
-type Bit = bool;
+pub type Bit = bool;
 
 // NANDゲート
 pub fn nand(a: Bit, b: Bit) -> Bit {
