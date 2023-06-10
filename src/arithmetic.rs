@@ -3,21 +3,21 @@ use crate::logic::*;
 /// Half Adder
 /// * `a` - first input of a half adder
 /// * `b` - second input of a half adder
-/// * return - [sum, carry] : [Bit; 2]
-pub fn half_adder(a: Bit, b: Bit) -> [Bit; 2] {
-    [xor(a, b), and(a, b)]
+/// * return - [sum, carry] : (Bit, Bit)
+pub fn half_adder(a: Bit, b: Bit) -> (Bit, Bit) {
+    ( xor(a, b), and(a, b) )
 }
 
 /// Full Adder
 /// * `a` - first input of a full adder
 /// * `b` - second input of a full adder
 /// * `c` - third input of a full adder
-/// * return - [sum, carry] : [Bit; 2]
-pub fn full_adder(a: Bit, b: Bit, c: Bit) -> [Bit; 2] {
-    [
+/// * return - [sum, carry] : (Bit, Bit)
+pub fn full_adder(a: Bit, b: Bit, c: Bit) -> (Bit, Bit) {
+    (
         xor(xor(a, b), c), 
         or(or(and(a, b), and(b, c)), and(c, a))
-    ]
+    )
 }
 
 /// 16-bit-width adder
@@ -31,9 +31,7 @@ pub fn add16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
     let mut sum: [Bit; 16] = [false; 16];
     a.iter().zip(b.iter()).enumerate()
         .for_each(|(i, (x, y))| {
-            let tmp = full_adder(*x, *y, carry);
-            sum[i] = tmp[0];
-            carry = tmp[1];
+            (sum[i], carry) = full_adder(*x, *y, carry);
         });
     return sum
 }
@@ -49,11 +47,11 @@ mod tests {
             ins[i][0] = (i & 1) == 1;
             ins[i][1] = (i & 2) == 2;
         }
-        let expecteds: [[Bit; 2]; 4] = [
-            [false, false],
-            [true, false],
-            [true, false],
-            [false, true],
+        let expecteds: [(Bit, Bit); 4] = [
+            (false, false),
+            (true, false),
+            (true, false),
+            (false, true),
         ];
 
         for i in 0..4 {
@@ -69,15 +67,15 @@ mod tests {
             ins[i][1] = (i & 2) == 2;
             ins[i][2] = (i & 4) == 4;
         }
-        let expecteds: [[Bit; 2]; 8] = [
-            [false, false],
-            [true, false],
-            [true, false],
-            [false, true],
-            [true, false],
-            [false, true],
-            [false, true],
-            [true, true],
+        let expecteds: [(Bit, Bit); 8] = [
+            (false, false),
+            (true, false),
+            (true, false),
+            (false, true),
+            (true, false),
+            (false, true),
+            (false, true),
+            (true, true),
         ];
 
             for i in 0..8 {

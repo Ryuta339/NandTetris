@@ -37,11 +37,11 @@ pub fn mux(a: Bit, b: Bit, sel: Bit) -> Bit {
 }
 
 // デマルチプレクサ
-pub fn dmux(b_in: Bit, sel: Bit) -> [Bit; 2] {
-    [
+pub fn dmux(b_in: Bit, sel: Bit) -> (Bit, Bit) {
+    (
         and(not(sel), b_in),
         and(sel, b_in)
-    ]
+    )
 }
 
 // 16ビットNOT
@@ -158,18 +158,18 @@ pub fn mux8way16(
 }
 
 // 1ビット1入力4出力デマルチプレクサ
-pub fn dmux4way(b_in: Bit, sel: [Bit; 2]) -> [Bit; 4] {
-    [
+pub fn dmux4way(b_in: Bit, sel: [Bit; 2]) -> (Bit, Bit, Bit, Bit) {
+    (
         and(and(not(sel[0]), not(sel[1])), b_in),
         and(and(sel[0], not(sel[1])), b_in),
         and(and(not(sel[0]), sel[1]), b_in),
         and(and(sel[0], sel[1]), b_in),
-    ]
+    )
 }
 
 // 1ビット1入力8出力デマルチプレクサ
-pub fn dmux8way(b_in: Bit, sel: [Bit; 3]) -> [Bit; 8] {
-    [
+pub fn dmux8way(b_in: Bit, sel: [Bit; 3]) -> (Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit) {
+    (
         and(and(and(not(sel[0]), not(sel[1])), not(sel[2])), b_in),
         and(and(and(sel[0], not(sel[1])), not(sel[2])), b_in),
         and(and(and(not(sel[0]), sel[1]), not(sel[2])), b_in),
@@ -178,7 +178,7 @@ pub fn dmux8way(b_in: Bit, sel: [Bit; 3]) -> [Bit; 8] {
         and(and(and(sel[0], not(sel[1])), sel[2]), b_in),
         and(and(and(not(sel[0]), sel[1]), sel[2]), b_in),
         and(and(and(sel[0], sel[1]), sel[2]), b_in),
-    ]
+    )
 }
 
 #[cfg(test)]
@@ -258,11 +258,11 @@ mod tests {
             for sel in BOOLS.iter() {
                 let out = dmux(*b_in, *sel);
                 if *sel {
-                    assert_eq!(out[0], false);
-                    assert_eq!(out[1], *b_in);
+                    assert_eq!(out.0, false);
+                    assert_eq!(out.1, *b_in);
                 } else {
-                    assert_eq!(out[0], *b_in);
-                    assert_eq!(out[1], false);
+                    assert_eq!(out.0, *b_in);
+                    assert_eq!(out.1, false);
                 }
             }
         }
@@ -457,11 +457,11 @@ mod tests {
 
     #[test]
     fn test_dmux4way() {
-        let expecteds: [[Bit; 4]; 4] = [
-            [true, false, false, false],
-            [false, true, false, false],
-            [false, false, true, false],
-            [false, false, false, true],
+        let expecteds: [(Bit, Bit, Bit, Bit); 4] = [
+            (true, false, false, false),
+            (false, true, false, false),
+            (false, false, true, false),
+            (false, false, false, true),
         ];
         let sels: [[Bit; 2]; 4] = [
             [false, false],
@@ -470,17 +470,23 @@ mod tests {
             [true, true],
         ];
         for i in 0..4 {
-            assert_eq!(dmux4way(false, sels[i]), [false, false, false, false]);
+            assert_eq!(dmux4way(false, sels[i]), (false, false, false, false));
             assert_eq!(dmux4way(true, sels[i]), expecteds[i]);
         }
     }
 
     #[test]
     fn test_dmux8way() {
-        let mut expecteds: [[Bit; 8]; 8] = [[false; 8]; 8];
-        for i in 0..8 {
-            expecteds[i][i] = true;
-        }
+        let expecteds: [(Bit, Bit, Bit, Bit, Bit, Bit, Bit, Bit); 8] = [
+            (true, false, false, false, false, false, false, false),
+            (false, true, false, false, false, false, false, false),
+            (false, false, true, false, false, false, false, false),
+            (false, false, false, true, false, false, false, false),
+            (false, false, false, false, true, false, false, false),
+            (false, false, false, false, false, true, false, false),
+            (false, false, false, false, false, false, true, false),
+            (false, false, false, false, false, false, false, true),
+        ];
         let mut sels: [[Bit; 3]; 8] = [[false; 3]; 8];
         for i in 0..8 {
             sels[i][0] = (i & 1) == 1;
@@ -488,9 +494,9 @@ mod tests {
             sels[i][2] = (i & 4) == 4;
         }
         for i in 0..8 {
-            assert_eq!(dmux8way(false, sels[i]), [
+            assert_eq!(dmux8way(false, sels[i]), (
                 false, false, false, false, false, false, false, false
-            ]);
+            ));
             assert_eq!(dmux8way(true, sels[i]), expecteds[i]);
         }
     }
