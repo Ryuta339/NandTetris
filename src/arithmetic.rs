@@ -27,13 +27,16 @@ pub fn full_adder(a: Bit, b: Bit, c: Bit) -> (Bit, Bit) {
 ///
 /// Do not detect an overflow.
 pub fn add16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
-    let mut carry: Bit = false;
-    let mut sum: [Bit; 16] = [false; 16];
-    a.iter().zip(b.iter()).enumerate()
-        .for_each(|(i, (x, y))| {
-            (sum[i], carry) = full_adder(*x, *y, carry);
-        });
-    return sum
+    a.iter().zip(b.iter())
+        .scan(false, |carry, (x, y)| {
+            let tmp: Bit;
+            (tmp, *carry) = full_adder(*x, *y, *carry);
+            Some(tmp)
+        })
+        .collect::<Vec<Bit>>()
+        .as_slice()
+        .try_into()
+        .unwrap()
 }
 
 /// 16-bit-width increment
