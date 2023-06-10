@@ -37,11 +37,11 @@ pub fn mux(a: Bit, b: Bit, sel: Bit) -> Bit {
 }
 
 // デマルチプレクサ
-pub fn dmux(b_in: Bit, sel: Bit) -> [Bit; 2] {
-    [
+pub fn dmux(b_in: Bit, sel: Bit) -> (Bit, Bit) {
+    (
         and(not(sel), b_in),
         and(sel, b_in)
-    ]
+    )
 }
 
 // 16ビットNOT
@@ -258,11 +258,11 @@ mod tests {
             for sel in BOOLS.iter() {
                 let out = dmux(*b_in, *sel);
                 if *sel {
-                    assert_eq!(out[0], false);
-                    assert_eq!(out[1], *b_in);
+                    assert_eq!(out.0, false);
+                    assert_eq!(out.1, *b_in);
                 } else {
-                    assert_eq!(out[0], *b_in);
-                    assert_eq!(out[1], false);
+                    assert_eq!(out.0, *b_in);
+                    assert_eq!(out.1, false);
                 }
             }
         }
