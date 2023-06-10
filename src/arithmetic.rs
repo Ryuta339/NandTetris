@@ -36,6 +36,19 @@ pub fn add16(a: [Bit; 16], b: [Bit; 16]) -> [Bit; 16] {
     return sum
 }
 
+/// 16-bit-width increment
+/// * `a` - input
+/// * return a+1 (mod 0x10000)
+///
+/// Do not detect an overflow.
+pub fn inc16(a: [Bit; 16]) -> [Bit; 16] {
+    add16(a, [
+        true, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+        false, false, false, false,
+    ])
+}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -100,6 +113,23 @@ mod tests {
                 expected[i] = (ans & flag) == flag;
             }
             assert_eq!(add16(bin_a, bin_b), expected);
+        }
+    }
+
+    #[test]
+    fn test_inc16() {
+        let arr: [u16; 5] = [0, 1, 2, 3, 0xFFFF];
+        for a in arr.iter() {
+            // オーバーフローが起きた時は切り捨てる
+            let ans: u16 = a.wrapping_add(1);
+            let mut bin_a: [Bit; 16] = [false; 16];
+            let mut expected: [Bit; 16] = [false; 16];
+            for i in 0..16 {
+                let flag: u16 = 1 << i;
+                bin_a[i] = (a & flag) == flag;
+                expected[i] = (ans & flag) == flag;
+            }
+            assert_eq!(inc16(bin_a), expected);
         }
     }
 }
